@@ -1,0 +1,341 @@
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://127.0.0.1:3000
+MongoDB is listening on http://127.0.0.1:27017
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://127.0.0.1:3000
+MongoDB is listening on http://127.0.0.1:27017
+t0210729a
+[ '63992379de61f6c2c3cf715e', '63992379de61f6c2c3cf7162' ]
+8 to 5
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://127.0.0.1:3000
+MongoDB is listening on http://127.0.0.1:27017
+T0333353H
+[
+  '63992379de61f6c2c3cf715e',
+  '63992379de61f6c2c3cf7162',
+  '63992379de61f6c2c3cf7166'
+]
+8 to 5
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://127.0.0.1:3000
+MongoDB is listening on http://127.0.0.1:27017
+t0210729a
+[ '63992379de61f6c2c3cf7176', '63992379de61f6c2c3cf717a' ]
+Spoilt/Under Maintainance
+t0210729a
+[ '63992379de61f6c2c3cf716a', '63992379de61f6c2c3cf716e' ]
+Spoilt/Under Maintenance
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://127.0.0.1:3000
+MongoDB is listening on http://127.0.0.1:27017
+t0210729a
+[
+  '63a175ccfe6d4e6f403e593f',
+  '63a175ccfe6d4e6f403e5943',
+  '63a175ccfe6d4e6f403e5947'
+]
+8 to 5
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://127.0.0.1:3000
+MongoDB is listening on http://127.0.0.1:27017
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://127.0.0.1:3000
+MongoDB is listening on http://127.0.0.1:27017
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://127.0.0.1:3000
+MongoDB is listening on http://127.0.0.1:27017
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://127.0.0.1:3000
+MongoDB is listening on http://127.0.0.1:27017
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://127.0.0.1:3000
+MongoDB is listening on http://127.0.0.1:27017
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://127.0.0.1:3000
+MongoDB is listening on http://127.0.0.1:27017
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://127.0.0.1:3000
+MongoDB is listening on http://127.0.0.1:27017
+{
+  'Body Worn Camera': [
+    {
+      item_description: 'DCC/001',
+      rankName: 'CPL TING JUN RUI',
+      reason: '8 to 5'
+    }
+  ],
+  'Bullet Camera': [
+    {
+      item_description: 'DCC/001',
+      rankName: 'CPL TING JUN RUI',
+      reason: '8 to 5'
+    }
+  ],
+  'Camera Strap': [
+    {
+      item_description: 'DCC/001',
+      rankName: 'CPL TING JUN RUI',
+      reason: '8 to 5'
+    }
+  ]
+}
+{
+  'Body Worn Camera': [
+    {
+      item_description: 'DCC/001',
+      rankName: 'CPL TING JUN RUI',
+      reason: '8 to 5'
+    }
+  ],
+  'Bullet Camera': [
+    {
+      item_description: 'DCC/001',
+      rankName: 'CPL TING JUN RUI',
+      reason: '8 to 5'
+    }
+  ],
+  'Camera Strap': [
+    {
+      item_description: 'DCC/001',
+      rankName: 'CPL TING JUN RUI',
+      reason: '8 to 5'
+    }
+  ]
+}
+{
+  'Body Worn Camera': [
+    {
+      item_description: 'DCC/001',
+      rankName: 'CPL TING JUN RUI',
+      reason: '8 to 5'
+    }
+  ],
+  'Bullet Camera': [
+    {
+      item_description: 'DCC/001',
+      rankName: 'CPL TING JUN RUI',
+      reason: '8 to 5'
+    }
+  ],
+  'Camera Strap': [
+    {
+      item_description: 'DCC/001',
+      rankName: 'CPL TING JUN RUI',
+      reason: '8 to 5'
+    }
+  ]
+}
+{
+  'Body Worn Camera': [
+    {
+      item_description: 'DCC/001',
+      rankName: 'CPL TING JUN RUI',
+      reason: '8 to 5'
+    }
+  ],
+  'Bullet Camera': [
+    {
+      item_description: 'DCC/001',
+      rankName: 'CPL TING JUN RUI',
+      reason: '8 to 5'
+    }
+  ],
+  'Camera Strap': [
+    {
+      item_description: 'DCC/001',
+      rankName: 'CPL TING JUN RUI',
+      reason: '8 to 5'
+    }
+  ]
+}
+{
+  'Body Worn Camera': [
+    {
+      item_description: 'DCC/001',
+      rankName: 'CPL TING JUN RUI',
+      reason: '8 to 5'
+    },
+    {
+      item_description: 'DCC/003',
+      rankName: 'PTE ALVIS',
+      reason: 'COS Duty'
+    }
+  ],
+  'Bullet Camera': [
+    {
+      item_description: 'DCC/001',
+      rankName: 'CPL TING JUN RUI',
+      reason: '8 to 5'
+    },
+    {
+      item_description: 'DCC/003',
+      rankName: 'PTE ALVIS',
+      reason: 'COS Duty'
+    }
+  ],
+  'Camera Strap': [
+    {
+      item_description: 'DCC/001',
+      rankName: 'CPL TING JUN RUI',
+      reason: '8 to 5'
+    },
+    {
+      item_description: 'DCC/004',
+      rankName: 'PTE ALVIS',
+      reason: 'COS Duty'
+    }
+  ]
+}
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://127.0.0.1:3000
+MongoDB is listening on http://127.0.0.1:27017
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://127.0.0.1:3000
+MongoDB is listening on http://127.0.0.1:27017
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://192.168.1.145:8001
+MongoDB is listening on http://127.0.0.1:27017
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://192.168.1.145:8001
+MongoDB is listening on http://127.0.0.1:27017
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://192.168.1.145:8001
+MongoDB is listening on http://127.0.0.1:27017
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://192.168.1.145:8001
+MongoDB is listening on http://127.0.0.1:27017
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://192.168.1.145:8001
+MongoDB is listening on http://127.0.0.1:27017
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://192.168.1.145:8001
+MongoDB is listening on http://127.0.0.1:27017
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://192.168.1.145:8001
+MongoDB is listening on http://127.0.0.1:27017
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://192.168.1.145:8001
+MongoDB is listening on http://127.0.0.1:27017
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://192.168.1.145:8001
+MongoDB is listening on http://127.0.0.1:27017
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://192.168.1.145:8001
+MongoDB is listening on http://127.0.0.1:27017
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://127.0.0.1:8001
+MongoDB is listening on http://127.0.0.1:27017
+
+> equipment_loan_system@1.0.0 server
+> cd app & node server
+
+Express is listening on http://127.0.0.1:8001
+MongoDB is listening on http://127.0.0.1:27017

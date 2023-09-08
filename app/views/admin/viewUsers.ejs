@@ -1,0 +1,253 @@
+<%- include("../partials/DatatablesDependencies") %> <%-
+include("../partials/header") %>
+<style>
+  ::placeholder {
+    text-transform: none;
+  }
+  #nric,
+  #fullName {
+    text-transform: uppercase;
+  }
+  thead tr,
+  tfoot tr {
+    background-color: #f1f1f1;
+  }
+  th {
+    white-space: nowrap;
+  }
+  td:nth-child(6) {
+    white-space: nowrap;
+  }
+  .selectedTr {
+    background-color: #a9a9a9 !important;
+  }
+  .submitDeleteButton,
+  .submitEditButton,
+  .cancelButton {
+    display: none;
+  }
+  .filter-cyan {
+    filter: brightness(0) saturate(100%) invert(82%) sepia(28%) saturate(7352%)
+      hue-rotate(145deg) brightness(96%) contrast(96%);
+  }
+  .filter-red {
+    filter: brightness(0) saturate(100%) invert(42%) sepia(34%) saturate(5692%)
+      hue-rotate(329deg) brightness(84%) contrast(107%);
+  }
+  .filter-white {
+    filter: brightness(0) invert(1);
+  }
+</style>
+<main class="container">
+  <hr />
+  <div class="row g-3 mb-3">
+    <div class="btn btn-group w-25">
+      <a class="btn btn-outline-danger" type="button" href="/admin"
+        ><strong>Go Back</strong></a
+      >
+    </div>
+    <div class="w-50"></div>
+    <div class="btn btn-group w-25">
+      <a class="btn btn-info" type="button" href="/user/adduser"
+        ><strong>Add User</strong></a
+      >
+    </div>
+  </div>
+  <table class="table table-hover" id="user-table">
+    <thead>
+      <tr>
+        <th scope="col">Full Name</th>
+        <th scope="col">NRIC</th>
+        <th scope="col">Admin User?</th>
+        <th scope="col">Staff User?</th>
+        <th scope="col">Assigned Items</th>
+        <th scope="col"></th>
+      </tr>
+    </thead>
+    <tfoot>
+      <tr>
+        <th scope="col">Full Name</th>
+        <th scope="col">NRIC</th>
+        <th scope="col">Admin User?</th>
+        <th scope="col">Staff User?</th>
+        <th scope="col">Assigned Items</th>
+        <th scope="col"></th>
+      </tr>
+    </tfoot>
+  </table>
+</main>
+<%- include("../partials/footer") %>
+<script>
+  let dataTable;
+
+  $(document).ready(function () {
+    dataTable = $(".table").DataTable({
+      ajax: "getUserData",
+      columnDefs: [
+        {
+          targets: [2, 3],
+          searchable: false,
+        },
+        {
+          targets: [0, 1, 2, 3],
+          orderDataType: "dom-text",
+          type: "numeric",
+        },
+        {
+          targets: [2, 3, 4, 5],
+          orderable: false,
+        },
+      ],
+      columns: [
+        {
+          data: "fullName",
+          render: function (data, type, row, meta) {
+            return `<input class="form-control form-control-sm" id="fullName" type="text" placeholder="Full Name" value="${data}" disabled>`;
+          },
+        },
+        {
+          data: "nric",
+          render: function (data, type, row, meta) {
+            return `<input class="form-control form-control-sm" id="nric" type="text" placeholder="Full Unmasked NRIC" maxlength="9" value="${data}" disabled>`;
+          },
+        },
+        {
+          data: "admin",
+          render: function (data, type, row, meta) {
+            return `<input class="form-check-input" id="admin" type="checkbox" value="admin" disabled${
+              data ? " checked" : ""
+            }>`;
+          },
+        },
+        {
+          data: "staff",
+          render: function (data, type, row, meta) {
+            return `<input class="form-check-input" id="staff" type="checkbox" value="staff" disabled${
+              data ? " checked" : ""
+            }>`;
+          },
+        },
+        {
+          data: "items",
+          render: function (data, type, row, meta) {
+            let ul = "<ul class='list-group list-group-flush'>";
+
+            for (const item of data) {
+              ul += `
+								<li class="list-group-item">${item}</li>`;
+            }
+            return `${ul}
+						</ul>`;
+          },
+        },
+        {
+          data: "_id",
+          render: function (data, type, row, meta) {
+            return `
+            <button class="btn btn-outline-primary btn-sm editButton" type="button"><img class="filter-cyan" src="/assets/pencil-square.svg" height="17px"></button>
+                      		<button class="btn btn-outline-primary btn-sm deleteButton" type="button"><img class="filter-red" src="/assets/trash.svg" height="17px"></button>
+  							<button class="btn btn-primary btn-sm submitEditButton" type="button" data-id="${data}"><img class="filter-white" src="/assets/check.svg" height="17px"></button>
+  							<button class="btn btn-primary btn-sm submitDeleteButton" type="button" data-id="${data}"><img class="filter-white" src="/assets/trash.svg" height="17px"></button>
+                      		<button class="btn btn-outline-primary btn-sm cancelButton" type="button"><img class="filter-red" src="/assets/x.svg" height="17px"></button>
+						`;
+          },
+        },
+      ],
+      order: [[0, "asc"]],
+      orderCellsTop: true,
+      pagingType: "first_last_numbers",
+    });
+  });
+
+  // Variable declarations
+  const { user_table } = Object.fromEntries(
+    Array.from(document.querySelectorAll("[id]")).map((element) => [
+      element.id.replace(/-/g, "_"),
+      element,
+    ])
+  );
+
+  // Entry editing
+  const editEntry = (tr) => {
+    for (const id of ["fullName", "nric", "admin", "staff"])
+      tr.querySelector(`#${id}`).disabled = false;
+    for (const className of ["submitEditButton", "cancelButton"])
+      tr.querySelector(`.${className}`).style.display = "inline";
+    for (const className of ["editButton", "deleteButton"])
+      tr.querySelector(`.${className}`).style.display = "none";
+  };
+
+  const deleteEntry = (tr) => {
+    for (const className of ["submitDeleteButton", "cancelButton"])
+      tr.querySelector(`.${className}`).style.display = "inline";
+    for (const className of ["editButton", "deleteButton"])
+      tr.querySelector(`.${className}`).style.display = "none";
+    tr.classList.add("selectedTr");
+  };
+
+  const hideButtons = (tr) => {
+    for (const id of ["fullName", "nric", "admin", "staff"])
+      tr.querySelector(`#${id}`).disabled = true;
+    for (const className of [
+      "submitEditButton",
+      "submitDeleteButton",
+      "cancelButton",
+    ])
+      tr.querySelector(`.${className}`).style.display = "none";
+    for (const className of ["editButton", "deleteButton"])
+      tr.querySelector(`.${className}`).style.display = "inline";
+    tr.classList.remove("selectedTr");
+  };
+
+  const edit = (data) => {
+    fetch("/admin/editUser", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data }),
+    });
+  };
+
+  const confirmEditEntry = (tr) => {
+    let data = { _id: tr.querySelector(".submitEditButton").dataset.id };
+    for (const id of ["fullName", "nric"])
+      data[id] = tr.querySelector(`#${id}`).value;
+    for (const id of ["admin", "staff"])
+      data[id] = tr.querySelector(`#${id}`).checked;
+    edit(data);
+    hideButtons(tr);
+  };
+
+  const del = (_id) => {
+    fetch("/admin/deleteUser", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ _id }),
+    });
+  };
+
+  const confirmDeleteEntry = (tr) =>
+    del(tr.querySelector(".submitDeleteButton").dataset.id);
+
+  const reloadTable = () => dataTable.ajax.reload(null, false);
+
+  // Event listeners
+  user_table.addEventListener("click", (event) => {
+    const parentButton =
+      event.target.tagName === "IMG" ? event.target.parentNode : event.target;
+
+    const parentTr = parentButton.parentNode.parentNode;
+
+    if (parentButton.classList.contains("editButton")) editEntry(parentTr);
+    else if (parentButton.classList.contains("deleteButton"))
+      deleteEntry(parentTr);
+    else if (parentButton.classList.contains("submitEditButton"))
+      confirmEditEntry(parentTr);
+    else if (parentButton.classList.contains("submitDeleteButton")) {
+      confirmDeleteEntry(parentTr);
+      reloadTable();
+    } else if (parentButton.classList.contains("cancelButton")) {
+      hideButtons(parentTr);
+      reloadTable();
+    }
+  });
+</script>

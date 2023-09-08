@@ -1,0 +1,127 @@
+<%- include("../partials/header") %>
+<style>
+  ::placeholder {
+    text-transform: none;
+  }
+
+  #nric,
+  #pin {
+    text-transform: uppercase;
+  }
+</style>
+<main class="container w-75 mt-4">
+  <hr />
+  <form id="form" method="post" action="/user" autocomplete="off">
+    <div class="row g-3" id="particulars-form">
+      <div class="form-group col-md-6">
+        <label class="form-label" for="nric">NRIC</label>
+        <input
+          class="form-control"
+          id="nric"
+          name="data[nric]"
+          type="text"
+          placeholder="Full Unmasked NRIC"
+          maxlength="9"
+        />
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">
+          Please enter <strong>Full <u>Unmasked</u></strong> NRIC (e.g.
+          'S1234567A').
+        </div>
+      </div>
+      <div class="form-group col-md-6">
+        <label class="form-label" for="pin">User PIN</label>
+        <input
+          class="form-control"
+          id="pin"
+          name="data[pin]"
+          type="text"
+          placeholder="4 character PIN"
+          maxlength="4"
+        />
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">
+          Please enter a valid 4 character PIN.
+        </div>
+      </div>
+      <hr />
+      <div class="col-md-6">
+        <a class="btn btn-danger btn-lg w-100" type="button" href="/"
+          >Go Back</a
+        >
+      </div>
+      <div class="col-md-6">
+        <button
+          class="btn btn-success btn-lg w-100"
+          id="submit-button"
+          type="button"
+          disabled
+        >
+          Log in
+        </button>
+      </div>
+    </div>
+  </form>
+</main>
+<%- include("../partials/footer") %>
+<script>
+  // Variable declarations
+  const formInputs = Object.fromEntries(
+    Array.from(document.querySelectorAll("#particulars-form input")).map(
+      (element) => [element.id, element]
+    )
+  );
+
+  const { form, submit_button } = Object.fromEntries(
+    Array.from(document.querySelectorAll("[id]")).map((element) => [
+      element.id.replace(/-/g, "_"),
+      element,
+    ])
+  );
+
+  // Client-side form validation
+  const regExPatterns = {
+    nric: /^[STFG]\d{7}[A-Z]$/i,
+    fullName: /^\w+([\w ]+)*$/i,
+    pin: /^\w{4}$/i,
+  };
+
+  const validateValue = (id, value) => regExPatterns[id].test(value);
+
+  const validationState = (boolean) => {
+    return boolean ? "is-valid" : "is-invalid";
+  };
+
+  const checkValidation = (id, value) => {
+    switch (id) {
+      case "nric":
+      case "pin":
+        return `form-control ${validationState(validateValue(id, value))}`;
+      default:
+        return "";
+    }
+  };
+
+  const submitState = () => {
+    const inputsArr = Object.values(formInputs);
+
+    submit_button.disabled =
+      inputsArr.filter((element) => element.classList.contains("is-valid"))
+        .length !== 2;
+  };
+
+  const validate = (id) => {
+    formInputs[id].className = checkValidation(id, formInputs[id].value);
+    submitState();
+  };
+
+  // Event listeners
+
+  Object.keys(formInputs).forEach((id) => {
+    formInputs[id].addEventListener("keyup", () => validate(id));
+  });
+
+  submit_button.addEventListener("click", () => {
+    form.submit();
+  });
+</script>

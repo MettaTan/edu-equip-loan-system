@@ -1,0 +1,37 @@
+<%- include("./partials/header") %>
+<style>
+  .menuButton {
+    --bs-btn-padding-y: 0.75rem;
+    --bs-btn-font-size: 1.25rem;
+  }
+</style>
+<main class="container w-75 mt-4">
+  <div class="row d-flex justify-content-evenly">
+    <a
+      class="btn btn-primary menuButton col-md-4"
+      type="button"
+      href="/transaction/loan"
+      ><strong>Loan<br />Equipment</strong></a
+    >
+    <a
+      class="btn btn-info menuButton col-md-4"
+      type="button"
+      href="/transaction/returns"
+      ><strong>Return<br />Equipment</strong></a
+    >
+  </div>
+
+  <div class="row d-flex justify-content-center mt-4">
+    <a class="btn btn-secondary btn-lg col-md-6" type="button" href="/user"
+      ><strong>Admin Menu</strong></a
+    >
+  </div>
+</main>
+<%- include("./partials/footer") %>
+<script>
+  const ip = "<%= ip %>";
+  const port = "<%= port %>";
+  sessionStorage.clear();
+  sessionStorage.setItem("ip", ip);
+  sessionStorage.setItem("port", port);
+</script>

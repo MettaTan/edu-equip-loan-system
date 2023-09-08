@@ -1,0 +1,55 @@
+<%- include("../partials/header") %>
+<style>
+  .menuButton {
+    --bs-btn-padding-y: 0.75rem;
+    --bs-btn-font-size: 1.25rem;
+  }
+</style>
+<main class="container w-75 mt-4">
+  <div class="row d-flex justify-content-evenly">
+    <a
+      class="btn btn-success menuButton col-md-3"
+      type="button"
+      href="/admin/viewRecords"
+      ><strong>View Item<br />Records</strong></a
+    >
+    <a
+      class="btn btn-outline-primary menuButton col-md-3"
+      type="button"
+      href="/admin/viewItems"
+      ><strong>View Item<br />Status &amp; Assignments</strong></a
+    >
+    <a
+      class="btn btn-outline-primary menuButton col-md-3"
+      type="button"
+      href="/admin/viewUsers"
+      ><strong>View User<br />Details</strong></a
+    >
+  </div>
+  <div class="row d-flex justify-content-evenly mt-4">
+    <a
+      class="btn btn-secondary menuButton col-md-4"
+      type="button"
+      href="/admin/hoto"
+      ><strong>Handover/<br />Takeover</strong></a
+    >
+    <a
+      class="btn btn-info menuButton col-md-3"
+      type="button"
+      href="/admin/clear"
+      ><strong>Clear Devices<br />& Equipment</strong></a
+    >
+  </div>
+  <!-- Show count of open entries -->
+
+  <form
+    class="row d-flex justify-content-center mt-4"
+    action="/user/logout"
+    method="POST"
+  >
+    <button type="submit" class="btn btn-outline-danger btn-lg col-md-6">
+      Logout to Main Menu
+    </button>
+  </form>
+</main>
+<%- include("../partials/footer") %>

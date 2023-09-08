@@ -1,0 +1,483 @@
+<%- include("../partials/header") %>
+<style>
+  ::placeholder {
+    text-transform: none;
+  }
+
+  #nric,
+  #fullName,
+  #pin {
+    text-transform: uppercase;
+  }
+  .filter-white {
+    filter: brightness(0) invert(1);
+  }
+  .filter-red {
+    filter: brightness(0) saturate(100%) invert(42%) sepia(34%) saturate(5692%)
+      hue-rotate(329deg) brightness(84%) contrast(107%);
+  }
+</style>
+<main class="container w-75 mt-4">
+  <form id="form" method="post" action="/transaction/loan" autocomplete="off">
+    <div class="row g-3" id="particulars-form">
+      <div class="form-group col-md-4">
+        <label class="form-label" for="nric">NRIC</label>
+        <input
+          class="form-control"
+          id="nric"
+          name="data[nric]"
+          type="text"
+          placeholder="Full Unmasked NRIC"
+          maxlength="9"
+        />
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback" id="nric-invalid-feedback"></div>
+      </div>
+      <div class="form-group col-md-4">
+        <label class="form-label" for="fullName">Rank &amp; Name</label>
+        <input
+          class="form-control"
+          id="fullName"
+          type="text"
+          placeholder="Rank &amp; Name"
+          disabled
+        />
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">Please enter your Rank &amp; Name.</div>
+      </div>
+      <div class="form-group col-md-4">
+        <label class="form-label" for="pin">User PIN</label>
+        <input
+          class="form-control"
+          id="pin"
+          type="text"
+          placeholder="4 character PIN"
+          maxlength="4"
+          disabled
+        />
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback" id="pin-invalid-feedback"></div>
+      </div>
+      <div class="col-md-6">
+        <div class="accordion">
+          <div class="accordion-item">
+            <div class="accordion-header">
+              <button
+                class="accordion-button"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#assigned-items"
+              >
+                Assigned Items
+              </button>
+            </div>
+            <div id="assigned-items" class="accordion-collapse collapse my-3">
+              <div class="row g-3">
+                <div class="form-group col-md-9 offset-md-1">
+                  <select
+                    class="form-select"
+                    id="assigned-items-select"
+                    disabled
+                  >
+                    <option selected value="" disabled>
+                      Select an item...
+                    </option>
+                  </select>
+                </div>
+                <button
+                  class="btn btn-success btn-sm col-md-1"
+                  id="add-assigned-item"
+                  type="button"
+                  disabled
+                >
+                  <img
+                    class="filter-white"
+                    src="/assets/plus-lg.svg"
+                    height="17px"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <div class="accordion-header">
+              <button
+                class="accordion-button"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#unassigned-items"
+              >
+                Unassigned Items
+              </button>
+            </div>
+            <div id="unassigned-items" class="accordion-collapse collapse my-3">
+              <div class="row g-3">
+                <div class="form-group col-md-9 offset-md-1">
+                  <select
+                    class="form-select"
+                    id="unassigned-items-select"
+                    disabled
+                  >
+                    <option selected value="" disabled>
+                      Select an option...
+                    </option>
+                    <% for (const item of unassignedItems) { %> <%= item %>
+                    <option value="<%= item._id %>">
+                      <%= `${item.item_description}
+                      (${item.equipment_type.equipment_name})` %>
+                    </option>
+                    <% } %>
+                  </select>
+                </div>
+                <button
+                  class="btn btn-success btn-sm col-md-1"
+                  id="add-unassigned-item"
+                  type="button"
+                  disabled
+                >
+                  <img
+                    class="filter-white"
+                    src="/assets/plus-lg.svg"
+                    height="17px"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <div class="mx-2 mt-1">
+              <table class="table table-hover" id="item-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Item Description</th>
+                    <th scope="col"></th>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group col-md-6">
+        <div class="row g-3">
+          <div class="form-group col-md-12">
+            <label class="form-label" for="reason">Reason for Loan:</label>
+            <select class="form-select" id="reason" name="data[reason]">
+              <option selected value="" disabled>Select an option...</option>
+              <option value="Lessons">Lessons</option>
+              <option value="Exams">Exams</option>
+              <option value="Personal Use">Personal Use</option>
+              <option value="Temporary Loan">Temporary Loan</option>
+              <option value="Spoilt/Under Maintenance">
+                Spoilt/Under Maintenance
+              </option>
+            </select>
+            <div class="valid-feedback">Looks good!</div>
+            <div class="invalid-feedback">Reason for loan not selected!</div>
+          </div>
+          <div class="form-group col-md-12">
+            <label class="form-label" for="signature">Signature</label>
+            <canvas class="border" id="sig-canvas"></canvas>
+            <button
+              class="btn btn-outline-danger btn-sm w-100"
+              id="signature-clear"
+              type="button"
+            >
+              Clear Signature
+            </button>
+            <input id="signature" name="data[signature]" type="hidden" />
+            <div class="invalid-feedback">Please sign.</div>
+          </div>
+        </div>
+      </div>
+      <hr />
+      <div class="col-md-6">
+        <a class="btn btn-danger btn-lg w-100" type="button" href="/"
+          >Go Back</a
+        >
+      </div>
+      <div class="col-md-6">
+        <button
+          class="btn btn-outline-success btn-lg w-100"
+          id="submit-button"
+          type="submit"
+          disabled
+        >
+          To Verify
+        </button>
+      </div>
+    </div>
+  </form>
+</main>
+<%- include("../partials/footer") %>
+<script src="/javascripts/canvas.js"></script>
+<script>
+  // Variable declarations
+  const formInputs = Object.fromEntries(
+    Array.from(
+      document.querySelectorAll("#particulars-form input, #reason")
+    ).map((element) => [element.id, element])
+  );
+
+  const {
+      form,
+      nric_invalid_feedback,
+      pin_invalid_feedback,
+      assigned_items,
+      assigned_items_select,
+      add_assigned_item,
+      unassigned_items,
+      unassigned_items_select,
+      add_unassigned_item,
+      item_table,
+      signature_clear,
+      submit_button,
+    } = Object.fromEntries(
+      Array.from(document.querySelectorAll("[id]")).map((element) => [
+        element.id.replace(/-/g, "_"),
+        element,
+      ])
+    ),
+    signature_canvas = document.getElementById("sig-canvas");
+
+  // Client-side form validation
+  const regExPatterns = {
+    nric: /^[STFG]\d{7}[A-Z]$/i,
+    fullName: /^\w+([\w ]+)*$/i,
+    pin: /^\w{4}$/i,
+  };
+
+  const validateValue = (id, value) => regExPatterns[id].test(value);
+
+  const validationState = (boolean) => {
+    return boolean ? "is-valid" : "is-invalid";
+  };
+
+  const checkNric = async (value) => {
+    const res = await fetch("/transaction/checkNric", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nric: value }),
+    });
+
+    return await res.json();
+  };
+
+  const checkPin = async (value) => {
+    const res = await fetch("/transaction/checkPin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        nric: formInputs.nric.value,
+        pin: value,
+      }),
+    });
+
+    return await res.json();
+  };
+
+  const getAssignedItems = async () => {
+    const res = await fetch("/transaction/getAssignedItems", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nric: formInputs.nric.value }),
+    });
+
+    return await res.json();
+  };
+
+  const selectState = (boolean) => {
+    assigned_items_select.disabled = !boolean;
+    unassigned_items_select.disabled = !boolean;
+    add_assigned_item.disabled = !boolean;
+    add_unassigned_item.disabled = !boolean;
+    if (!boolean) {
+      if (assigned_items_select.options.length > 1) {
+        for (let i = 1; i < assigned_items_select.options.length; i++)
+          assigned_items_select.remove(i);
+      }
+      assigned_items_select.value = "";
+      unassigned_items_select.value = "";
+    }
+  };
+
+  const checkValidation = (id, value) => {
+    switch (id) {
+      case "nric":
+        if (validateValue(id, value)) {
+          const promise = checkNric(value);
+
+          promise.then((res) => {
+            formInputs.pin.disabled = !res;
+            if (res) {
+              formInputs.fullName.value = res.fullName;
+              validate(formInputs.fullName.id);
+              formInputs.nric.className = `form-control ${validationState(
+                true
+              )}`;
+              validate(formInputs.pin.id);
+            } else {
+              formInputs.fullName.value = "";
+              validate(formInputs.fullName.id);
+              formInputs.nric.className = `form-control ${validationState(
+                false
+              )}`;
+              nric_invalid_feedback.innerHTML = "User does not exist!";
+              selectState(false);
+              submitState();
+            }
+          });
+        } else {
+          formInputs.pin.disabled = true;
+          formInputs.fullName.value = "";
+          validate(formInputs.fullName.id);
+          formInputs.nric.className = `form-control ${validationState(false)}`;
+          nric_invalid_feedback.innerHTML =
+            "Please enter <strong>Full <u>Unmasked</u></strong> NRIC (e.g. 'S1234567A').";
+          selectState(false);
+          submitState();
+        }
+        break;
+      case "fullName":
+        formInputs[id].className = `form-control ${validationState(
+          validateValue(id, value)
+        )}`;
+      case "pin":
+        if (validateValue(id, value)) {
+          const promise = checkPin(value);
+
+          promise.then((res) => {
+            formInputs.pin.className = `form-control ${validationState(res)}`;
+            if (!res) {
+              pin_invalid_feedback.textContent =
+                "Invalid PIN! Please try again...";
+              selectState(false);
+              submitState();
+            } else {
+              const promise2 = getAssignedItems();
+
+              promise2.then((assignedItems) => {
+                if (assignedItems) {
+                  for (const item of assignedItems) {
+                    let itemOption = new Option(
+                      `${item.item_description} (${item.equipment_type.equipment_name})`,
+                      item._id
+                    );
+                    assigned_items_select.add(itemOption, undefined);
+                  }
+                }
+                selectState(true);
+                submitState();
+              });
+            }
+          });
+        } else {
+          formInputs.pin.className = `form-control ${validationState(false)}`;
+          pin_invalid_feedback.textContent =
+            "Please enter a valid 4 character PIN.";
+          selectState(false);
+          submitState();
+        }
+        break;
+      case "reason":
+        formInputs[id].className = `form-select $validationState(value !== "")`;
+      case "signature":
+        formInputs[id].className = `form-control ${validationState(
+          value !== ""
+        )}`;
+      default:
+        return "";
+    }
+  };
+
+  const submitState = () => {
+    const inputsArr = Object.values(formInputs);
+
+    submit_button.disabled =
+      inputsArr.filter((element) => element.classList.contains("is-valid"))
+        .length !== 5 || item_table.rows.length === 1;
+  };
+
+  const validate = (id) => {
+    checkValidation(id, formInputs[id].value);
+    submitState();
+  };
+
+  // Canvas scripting
+  const initializeCanvas = () => {
+    signature_canvas.width = signature_clear.offsetWidth;
+    signature_canvas.height = (signature_clear.offsetWidth / 16) * 9;
+  };
+
+  const clearCanvas = () => {
+    initializeCanvas();
+    formInputs.signature.value = "";
+    validate(formInputs.signature.id);
+  };
+
+  const processCanvas = () => {
+    signature.value = signature_canvas.toDataURL();
+    validate(formInputs.signature.id);
+  };
+
+  // Item selection scripting
+  const newEntry = (_id, item_description) => {
+    const newRow = item_table.insertRow(-1);
+
+    for (const index of [0, 1]) newRow.insertCell(index);
+    newRow.cells[0].outerHTML = `<td>${item_description}<input name="data[items][]" value="${_id}" hidden></td>`;
+    newRow.cells[1].outerHTML = `<td><button class="btn btn-outline-danger btn-sm deleteButton" type="button"><img class="filter-red" src="/assets/x.svg" height="17px"></button></td>`;
+  };
+
+  const populateAssigned = () => {
+    const _id = assigned_items_select.value,
+      item_description =
+        assigned_items_select.options[assigned_items_select.selectedIndex].text;
+    if (!!_id & !item_table.textContent.includes(item_description))
+      newEntry(_id, item_description);
+    submitState();
+  };
+
+  const populateUnassigned = () => {
+    const _id = unassigned_items_select.value,
+      item_description =
+        unassigned_items_select.options[unassigned_items_select.selectedIndex]
+          .text;
+    if (!!_id & !item_table.textContent.includes(item_description))
+      newEntry(_id, item_description);
+    submitState();
+  };
+
+  const deleteEntry = (tr) => {
+    tr.remove();
+    submitState();
+  };
+
+  // Initialize values
+  initializeCanvas();
+
+  // Event listeners
+
+  Object.keys(formInputs).forEach((id) => {
+    formInputs[id].addEventListener("keyup", () => validate(id));
+  });
+
+  formInputs.reason.addEventListener("click", () => validate("reason"));
+
+  add_assigned_item.addEventListener("click", () => populateAssigned());
+
+  add_unassigned_item.addEventListener("click", () => populateUnassigned());
+
+  item_table.addEventListener("click", (event) => {
+    const parentButton =
+      event.target.tagName === "IMG" ? event.target.parentNode : event.target;
+
+    const parentTr = parentButton.parentNode.parentNode;
+
+    if (parentButton.classList.contains("deleteButton")) deleteEntry(parentTr);
+  });
+
+  signature_clear.addEventListener("click", () => clearCanvas());
+
+  signature_canvas.addEventListener("mouseup", () => processCanvas());
+</script>

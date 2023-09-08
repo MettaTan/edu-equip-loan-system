@@ -1,0 +1,357 @@
+<%- include("../partials/DatatablesDependencies") %>
+<%- include("../partials/header") %>
+<style>
+	::placeholder {
+		text-transform: none;
+	}
+	#nric,
+	#fullName,
+	#pin {
+		text-transform: uppercase;
+	}
+	thead tr,
+	tfoot tr {
+  		background-color: #f1f1f1;
+	}
+	th {
+		white-space: nowrap;
+	}
+	td > img {
+		border: 1px solid black;
+	}
+	.popover {
+		max-width: 100%;
+		max-height: 30%;
+ 		overflow-y: scroll;
+	}
+</style>
+<main class="container">
+	<hr>
+	<div class="row g-3 mb-3">
+		<div class="btn btn-group w-25">
+			<a class="btn btn-outline-danger" type="button" href="/admin"><strong>Go Back</strong></a>
+		</div>
+		<div class="w-50"></div>
+		<div class="btn btn-group w-25">
+			<button class="btn btn-secondary" type="button" data-bs-toggle="modal" data-bs-target="#hoto-modal"><strong><%= type %></strong></button>
+		</div>
+	</div>
+	<table class="table table-hover" id="hoto-table">
+		<thead>
+			<tr>
+				<th scope="col">S/N</th>
+				<th scope="col">Items</th>
+				<th scope="col">Handover Personnel</th>
+				<th scope="col">Handover Signature</th>
+				<th scope="col">Handover Time</th>
+				<th scope="col">Takeover Personnel</th>
+				<th scope="col">Takeover Signature</th>
+				<th scope="col">Takeover Time</th>
+			</tr>
+		</thead>
+		<tfoot>
+			<tr>
+				<th scope="col">S/N</th>
+				<th scope="col">Items</th>
+				<th scope="col">Handover Personnel</th>
+				<th scope="col">Handover Signature</th>
+				<th scope="col">Handover Time</th>
+				<th scope="col">Takeover Personnel</th>
+				<th scope="col">Takeover Signature</th>
+				<th scope="col">Takeover Time</th>
+			</tr>
+		</tfoot>
+	</table>
+	<div class="modal fade" id="hoto-modal" tabindex="-1">
+		<div class="modal-dialog modal-xl">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">To <%= type %></h5>
+					<button class="btn-close" type="button" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+					<div class="container">
+						<div class="row g-3">
+							<div class="col-md-6">
+								<div class="accordion">
+										<% for (const type of Object.keys(items)) { %>
+											<div class="accordion-item">
+												<div class="accordion-header">
+													<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#<%= type.replace(/ /g,"_") %>"><strong><%= type %></strong></button>
+												</div>
+												<div id="<%= type.replace(/ /g,"_") %>" class="accordion-collapse collapse show mx-1 my-3">
+													<table class="table table-hover">
+														<thead>
+															<tr>
+																<th scope="col">Items</th>
+																<th scope="col">Loaned to</th>
+																<th scope="col">Reason for loan</th>
+															</tr>
+														</thead>
+														<tbody>
+															<% for (const item of items[type]) { %>
+																<tr>
+																	<td><%= item.item_description %></td>
+																	<td><%= item.fullName %></td>
+																	<td><%= item.reason %></td>
+																</tr>
+															<% } %>
+														</tbody>
+													</table>
+												</div>
+											</div>
+										<% } %>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<form class="row g-3" id="hoto-form" method="post" action="/admin/hoto" autocomplete="off">
+									<div class="form-group col-md-12">
+										<label class="form-label" for="fullName">Verifier Rank &amp; Name</label>
+										<input class="form-control" id="fullName" type="text" placeholder="Rank &amp; Name" disabled>
+										<div class="valid-feedback">Looks good!</div>
+										<div class="invalid-feedback">Please enter your Rank &amp; Name.</div>
+									</div>
+									<div class="form-group col-md-6">
+										<label class="form-label" for="nric">Verifier NRIC</label>
+										<input class="form-control" id="nric" name="data[nric]" type="text" placeholder="Full Unmasked NRIC" maxlength="9">
+										<div class="valid-feedback">Looks good!</div>
+										<div class="invalid-feedback" id="nric-invalid-feedback"></div>
+									</div>
+									<div class="form-group col-md-6">
+										<label class="form-label" for="pin">Verifier User PIN</label>
+										<input class="form-control" id="pin" type="text" placeholder="4 character PIN" maxlength="4" disabled>
+										<div class="valid-feedback">Looks good!</div>
+										<div class="invalid-feedback" id="pin-invalid-feedback"></div>
+									</div>
+									<div class="form-group col-md-12">
+										<label class="form-label" for="signature">Signature</label>
+										<canvas class="border" id="sig-canvas"></canvas>
+										<button class="btn btn-outline-danger btn-sm w-100" id="signature-clear" type="button">Clear Signature</button>
+										<input id="signature" name="data[signature]" type="hidden">
+										<div class="invalid-feedback">Please sign.</div>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-outline-danger me-auto" type="button" data-bs-dismiss="modal">Close</button>
+					<button class="btn btn-success" id="hoto-submit" type="submit" form="hoto-form" disabled><%= type %></button>
+				</div>
+			</div>
+		</div>
+	</div>
+</main>
+<%- include("../partials/footer") %>
+<script src="/javascripts/canvas.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#hoto-table").DataTable({
+            ajax: "getHotoData",
+			columnDefs: [
+				{
+					targets: [3, 6],
+					orderable: false
+				},
+			],
+            columns: [
+                {data: "count"},
+                {
+					data: "items",
+					render: function (data, type, row, meta) {
+						let ul = ""
+						for (const item of data) ul += `
+							<li class='list-group-item'>${item}</li>`;
+						return `<button class="btn btn-outline-success btn-sm" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="right" data-bs-html="true" data-bs-content="<ul class='list-group list-group-flush'>${ul}</ul>"">View items</button>`
+					}
+				},
+                {data: "handover"},
+                {
+					data: "handover_signature",
+					render: function (data, type, row, meta) {
+						return `<img src="${data}" width="100px">`;
+					}
+				},
+                {
+					data: "handoverAt",
+					render: function (data, type, row, meta) {
+						return moment(new Date(data)).format("MMMM Do YYYY, h:mm:ss a");
+					}
+				},
+                {
+					data: "takeover",
+					render: function (data, type, row, meta) {
+						return data === "-" ? "" : data;
+					}
+				},
+                {
+					data: "takeover_signature",
+					render: function (data, type, row, meta) {
+						return data === "-" ? "" : `<img src="${data}" width="100px">`;
+					}
+				},
+                {
+					data: "takeoverAt",
+					render: function (data, type, row, meta) {
+						return data === "-" ? "" : moment(new Date(data)).format("MMMM Do YYYY, h:mm:ss a");
+					}
+				},
+            ],
+        	order: [
+				[0, "desc"]
+			],
+			orderCellsTop: true,
+            pagingType: "first_last_numbers",
+			initComplete: function(settings, json) {
+				const popoverTriggerList = document.querySelectorAll("[data-bs-toggle='popover']")
+				const popoverList = [...popoverTriggerList].map((element) => new bootstrap.Popover(element))
+			}
+        });
+    });
+
+// Variable declarations
+	const formInputs = Object.fromEntries(
+		Array.from(document.querySelectorAll("#hoto-form input")).map((element) => [element.id, element])
+	);
+	
+	const {
+		hoto_modal, form, nric_invalid_feedback, pin_invalid_feedback,
+        signature_clear, hoto_submit,
+	} = Object.fromEntries(
+		Array.from(document.querySelectorAll("[id]")).map((element) => [element.id.replace(/-/g, "_"), element])
+	),
+		signature_canvas = document.getElementById("sig-canvas");
+	
+// Client-side form validation
+	const regExPatterns = {
+		nric: /^[STFG]\d{7}[A-Z]$/i,
+		fullName: /^\w+([\w ]+)*$/i,
+		pin: /^\w{4}$/i
+	}
+
+	const validateValue = (id, value) => regExPatterns[id].test(value);
+
+	const validationState = (boolean) => {
+		return boolean ? "is-valid" : "is-invalid";
+	}
+
+    const checkAdminNric = async (value) => {
+        const res = await fetch("/transaction/checkAdminNric", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nric: value }),
+        });
+
+        return await res.json();
+    }
+
+    const checkPin = async (value) => {
+        const res = await fetch("/transaction/checkPin", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                nric: formInputs.nric.value,
+                pin: value,
+            }),
+        });
+
+        return await res.json();
+    }
+
+	const checkValidation = (id, value) => {
+		switch (id) {
+			case "nric":
+                if (validateValue(id, value)) {
+                    const promise = checkAdminNric(value);
+
+                    promise.then((res) => {
+                        formInputs.pin.disabled = !res;
+                        if (res) {
+                            formInputs.fullName.value = res.fullName;
+                            validate(formInputs.fullName.id);
+                            formInputs.nric.className = `form-control ${validationState(true)}`;
+                            validate(formInputs.pin.id);
+                        } else {
+                            formInputs.fullName.value = "";
+                            validate(formInputs.fullName.id);
+                            formInputs.nric.className = `form-control ${validationState(false)}`;
+                            nric_invalid_feedback.innerHTML = "User is not an admin user!"
+                            submitState();
+                        }
+                    });
+                } else {
+                    formInputs.pin.disabled = true;
+                    formInputs.fullName.value = "";
+                    validate(formInputs.fullName.id);
+                    formInputs.nric.className = `form-control ${validationState(false)}`;
+                    nric_invalid_feedback.innerHTML = "Please enter <strong>Full <u>Unmasked</u></strong> NRIC (e.g. 'S1234567A')."
+                    submitState();
+                }
+                break;
+			case "fullName":
+                formInputs[id].className = `form-control ${validationState(validateValue(id, value))}`;
+			case "pin":
+                if (validateValue(id, value)) {
+                    const promise = checkPin(value);
+
+                    promise.then((res) => {
+                        formInputs.pin.className = `form-control ${validationState(res)}`;
+                        if (!res) pin_invalid_feedback.textContent = "Invalid PIN! Please try again...";
+                        submitState();
+                    });
+                } else {
+                    formInputs.pin.className = `form-control ${validationState(false)}`;
+                    pin_invalid_feedback.textContent = "Please enter a valid 4 character PIN.";
+                    submitState();
+                }
+                break;
+            case "signature":
+                formInputs[id].className = `form-control ${validationState(value !== "")}`;
+			default:
+				return "";
+		}
+	}
+
+	const submitState = () => {
+		const inputsArr = Object.values(formInputs);
+
+		hoto_submit.disabled = inputsArr.filter((element) => element.classList.contains("is-valid")).length !== 4;
+	}
+
+	const validate = (id) => {
+        checkValidation(id, formInputs[id].value);
+		submitState();
+	}
+
+// Canvas scripting
+	const initializeCanvas = () => {
+		signature_canvas.width = signature_clear.offsetWidth;
+		signature_canvas.height = signature_clear.offsetWidth / 16 * 9;
+	}
+
+	const clearCanvas = () => {
+		initializeCanvas();
+		formInputs.signature.value = "";
+		validate(formInputs.signature.id);
+	}
+
+	const processCanvas = () => {
+		signature.value = signature_canvas.toDataURL();
+		validate(formInputs.signature.id);
+	}
+
+// Initialize values
+	initializeCanvas();
+
+// Event listeners
+	Object.keys(formInputs).forEach((id) => {
+		formInputs[id].addEventListener("keyup", () => validate(id));
+	});
+
+	hoto_modal.addEventListener("shown.bs.modal", () => clearCanvas());
+
+    signature_clear.addEventListener("click", () => clearCanvas());
+
+    signature_canvas.addEventListener("mouseup", () => processCanvas());
+</script>

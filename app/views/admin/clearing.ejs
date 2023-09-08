@@ -1,0 +1,480 @@
+<%- include("../partials/DatatablesDependencies") %> <%-
+include("../partials/header") %>
+<style>
+  ::placeholder {
+    text-transform: none;
+  }
+  #nric,
+  #fullName,
+  #pin {
+    text-transform: uppercase;
+  }
+  thead tr,
+  tfoot tr {
+    background-color: #f1f1f1;
+  }
+  th {
+    white-space: nowrap;
+  }
+  td > img {
+    border: 1px solid black;
+  }
+  .popover {
+    max-width: 100%;
+    max-height: 30%;
+    overflow-y: scroll;
+  }
+</style>
+<main class="container">
+  <hr />
+  <div class="row g-3 mb-3">
+    <div class="btn btn-group w-25">
+      <a class="btn btn-outline-danger" type="button" href="/admin"
+        ><strong>Go Back</strong></a
+      >
+    </div>
+    <div class="w-50"></div>
+    <div class="btn btn-group w-25">
+      <button
+        class="btn btn-secondary"
+        type="button"
+        data-bs-toggle="modal"
+        data-bs-target="#clearing-modal"
+      >
+        <strong>Clear Entries</strong>
+      </button>
+    </div>
+  </div>
+  <h4 class="mb-4">
+    <u>Items to be cleared</u>
+  </h4>
+  <table class="table table-hover" id="uncleared-table">
+    <thead>
+      <tr>
+        <th scope="col">S/N</th>
+        <th scope="col">Item</th>
+        <th scope="col">Loaned to</th>
+        <th scope="col">Reason for loan</th>
+        <th scope="col">Loaned at</th>
+        <th scope="col">Returned At</th>
+      </tr>
+    </thead>
+    <tfoot>
+      <tr>
+        <th scope="col">S/N</th>
+        <th scope="col">Item</th>
+        <th scope="col">Loaned to</th>
+        <th scope="col">Reason for loan</th>
+        <th scope="col">Loaned at</th>
+        <th scope="col">Returned At</th>
+      </tr>
+    </tfoot>
+  </table>
+  <br />
+  <h4 class="mb-4">
+    <u>Cleared Items</u>
+  </h4>
+  <table class="table table-hover" id="cleared-table">
+    <thead>
+      <tr>
+        <th scope="col">S/N</th>
+        <th scope="col">Item</th>
+        <th scope="col">Reason for Loan</th>
+        <th scope="col">Borrower</th>
+        <th scope="col">Borrower Signature<br />(Loan)</th>
+        <th scope="col">Loan Verifier</th>
+        <th scope="col">Loan Verifier<br />Signature</th>
+        <th scope="col">Loaned At</th>
+        <th scope="col">Borrower Signature<br />(Return)</th>
+        <th scope="col">Return Verifier</th>
+        <th scope="col">Return Verifier<br />Signature</th>
+        <th scope="col">Returned At</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% count = 0 %> <% for (const group of records) { %> <% for (const entry
+      of group.docs) { %>
+      <tr>
+        <td><%= entry.count %></td>
+        <td><%= entry.item %></td>
+        <td><%= entry.reason %></td>
+        <td><%= entry.borrower %></td>
+        <td><img src="<%= entry.loan_signature %>" width="100px" /></td>
+        <td><%= entry.loan_verifier %></td>
+        <td>
+          <img src="<%= entry.loan_verifier_signature %>" width="100px" />
+        </td>
+        <td><%= entry.loanAt %></td>
+        <td><%- entry.return_signature %></td>
+        <td><%= entry.return_verifier %></td>
+        <td><%- entry.return_verifier_signature %></td>
+        <td><%= entry.returnAt %></td>
+        <td><%= count %></td>
+      </tr>
+      <% count++ } %>
+      <tr style="background-color: #ddd">
+        <td></td>
+        <td></td>
+        <td colspan="10">
+          Entries cleared by
+          <strong><%= group.clearing_staff.fullName %></strong> at <%=
+          group.clearAt %>&nbsp;&nbsp;&nbsp;<img
+            src="<%= group.clearing_staff_signature %>"
+            width="100px"
+          />
+        </td>
+        <td style="display: none"></td>
+        <td style="display: none"></td>
+        <td style="display: none"></td>
+        <td style="display: none"></td>
+        <td style="display: none"></td>
+        <td style="display: none"></td>
+        <td style="display: none"></td>
+        <td style="display: none"></td>
+        <td style="display: none"></td>
+        <td><%= count %></td>
+      </tr>
+      <% count++ } %>
+    </tbody>
+    <tfoot>
+      <tr>
+        <th scope="col">S/N</th>
+        <th scope="col">Item</th>
+        <th scope="col">Reason for Loan</th>
+        <th scope="col">Borrower</th>
+        <th scope="col">Borrower Signature<br />(Loan)</th>
+        <th scope="col">Loan Verifier</th>
+        <th scope="col">Loan Verifier<br />Signature</th>
+        <th scope="col">Loaned At</th>
+        <th scope="col">Borrower Signature<br />(Return)</th>
+        <th scope="col">Return Verifier</th>
+        <th scope="col">Return Verifier<br />Signature</th>
+        <th scope="col">Returned At</th>
+        <th></th>
+      </tr>
+    </tfoot>
+  </table>
+  <div class="modal fade" id="clearing-modal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Clear Balance Entries</h5>
+          <button
+            class="btn-close"
+            type="button"
+            data-bs-dismiss="modal"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="container">
+            <div class="row g-3">
+              <div class="col-md-8">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th scope="col">Item</th>
+                      <th scope="col">Loaned to</th>
+                      <th scope="col">Reason for loan</th>
+                      <th scope="col">Loaned at</th>
+                      <th scope="col">Returned At</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% for (const record of unclearedItems) { %>
+                    <tr>
+                      <td><%= record.item %></td>
+                      <td><%= record.borrower %></td>
+                      <td><%= record.reason %></td>
+                      <td><%= record.loanAt %></td>
+                      <td><%= record.returnAt %></td>
+                    </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+              <div class="col-md-4">
+                <form
+                  class="row g-3"
+                  id="clearing-form"
+                  method="post"
+                  action="/admin/clear"
+                  autocomplete="off"
+                >
+                  <div class="form-group col-md-12">
+                    <label class="form-label" for="fullName">Staff Name</label>
+                    <input
+                      class="form-control"
+                      id="fullName"
+                      type="text"
+                      placeholder="Name"
+                      disabled
+                    />
+                    <div class="valid-feedback">Looks good!</div>
+                    <div class="invalid-feedback">Please enter your name.</div>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label class="form-label" for="nric">Staff NRIC</label>
+                    <input
+                      class="form-control"
+                      id="nric"
+                      name="data[nric]"
+                      type="text"
+                      placeholder="Full Unmasked NRIC"
+                      maxlength="9"
+                    />
+                    <div class="valid-feedback">Looks good!</div>
+                    <div
+                      class="invalid-feedback"
+                      id="nric-invalid-feedback"
+                    ></div>
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label class="form-label" for="pin">Staff User PIN</label>
+                    <input
+                      class="form-control"
+                      id="pin"
+                      type="text"
+                      placeholder="4 character PIN"
+                      maxlength="4"
+                      disabled
+                    />
+                    <div class="valid-feedback">Looks good!</div>
+                    <div
+                      class="invalid-feedback"
+                      id="pin-invalid-feedback"
+                    ></div>
+                  </div>
+                  <div class="form-group col-md-12">
+                    <label class="form-label" for="signature">Signature</label>
+                    <canvas class="border" id="sig-canvas"></canvas>
+                    <button
+                      class="btn btn-outline-danger btn-sm w-100"
+                      id="signature-clear"
+                      type="button"
+                    >
+                      Clear Signature
+                    </button>
+                    <input
+                      id="signature"
+                      name="data[signature]"
+                      type="hidden"
+                    />
+                    <div class="invalid-feedback">Please sign.</div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="btn btn-outline-danger me-auto"
+            type="button"
+            data-bs-dismiss="modal"
+          >
+            Close
+          </button>
+          <button
+            class="btn btn-success"
+            id="clearing-submit"
+            type="submit"
+            form="clearing-form"
+            disabled
+          >
+            Clear Entries
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<%- include("../partials/footer") %>
+<script src="/javascripts/canvas.js"></script>
+<script>
+  	const expressData = <%- JSON.stringify(unclearedItems) %>
+
+      $(document).ready(function () {
+          $("#uncleared-table").DataTable({
+              data: expressData,
+              columns: [
+                  { data: "count" },
+                  { data: "item" },
+                  { data: "borrower" },
+                  { data: "reason" },
+                  { data: "loanAt" },
+                  { data: "returnAt" },
+              ],
+          	order: [
+  				[0, "asc"]
+  			],
+  			orderCellsTop: true,
+              paging: false,
+  			info: false,
+          });
+
+          $("#cleared-table").DataTable({
+  			columnDefs: [
+  				{
+  					targets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+  					orderable: false
+  				},
+  				{
+  					targets: [12],
+  					visible: false,
+  				}
+  			],
+          	order: [
+  				[12, "desc"]
+  			],
+  			orderCellsTop: true,
+              pagingType: "first_last_numbers",
+          	scrollX: true,
+          });
+      });
+
+  // Variable declarations
+  	const formInputs = Object.fromEntries(
+  		Array.from(document.querySelectorAll("#clearing-form input")).map((element) => [element.id, element])
+  	);
+
+  	const {
+  		clearing_modal, form, nric_invalid_feedback, pin_invalid_feedback,
+          signature_clear, clearing_submit,
+  	} = Object.fromEntries(
+  		Array.from(document.querySelectorAll("[id]")).map((element) => [element.id.replace(/-/g, "_"), element])
+  	),
+  		signature_canvas = document.getElementById("sig-canvas");
+
+  // Client-side form validation
+  	const regExPatterns = {
+  		nric: /^[STFG]\d{7}[A-Z]$/i,
+  		fullName: /^\w+([\w ]+)*$/i,
+  		pin: /^\w{4}$/i
+  	}
+
+  	const validateValue = (id, value) => regExPatterns[id].test(value);
+
+  	const validationState = (boolean) => {
+  		return boolean ? "is-valid" : "is-invalid";
+  	}
+
+      const checkAdminNric = async (value) => {
+          const res = await fetch("/transaction/checkAdminNric", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ nric: value }),
+          });
+
+          return await res.json();
+      }
+
+      const checkPin = async (value) => {
+          const res = await fetch("/transaction/checkPin", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                  nric: formInputs.nric.value,
+                  pin: value,
+              }),
+          });
+
+          return await res.json();
+      }
+
+  	const checkValidation = (id, value) => {
+  		switch (id) {
+  			case "nric":
+                  if (validateValue(id, value)) {
+                      const promise = checkAdminNric(value);
+
+                      promise.then((res) => {
+                          formInputs.pin.disabled = !res;
+                          if (res) {
+                              formInputs.fullName.value = res.fullName;
+                              validate(formInputs.fullName.id);
+                              formInputs.nric.className = `form-control ${validationState(true)}`;
+                              validate(formInputs.pin.id);
+                          } else {
+                              formInputs.fullName.value = "";
+                              validate(formInputs.fullName.id);
+                              formInputs.nric.className = `form-control ${validationState(false)}`;
+                              nric_invalid_feedback.innerHTML = "User is not an admin user!"
+                              submitState();
+                          }
+                      });
+                  } else {
+                      formInputs.pin.disabled = true;
+                      formInputs.fullName.value = "";
+                      validate(formInputs.fullName.id);
+                      formInputs.nric.className = `form-control ${validationState(false)}`;
+                      nric_invalid_feedback.innerHTML = "Please enter <strong>Full <u>Unmasked</u></strong> NRIC (e.g. 'S1234567A')."
+                      submitState();
+                  }
+                  break;
+  			case "fullName":
+                  formInputs[id].className = `form-control ${validationState(validateValue(id, value))}`;
+  			case "pin":
+                  if (validateValue(id, value)) {
+                      const promise = checkPin(value);
+
+                      promise.then((res) => {
+                          formInputs.pin.className = `form-control ${validationState(res)}`;
+                          if (!res) pin_invalid_feedback.textContent = "Invalid PIN! Please try again...";
+                          submitState();
+                      });
+                  } else {
+                      formInputs.pin.className = `form-control ${validationState(false)}`;
+                      pin_invalid_feedback.textContent = "Please enter a valid 4 character PIN.";
+                      submitState();
+                  }
+                  break;
+              case "signature":
+                  formInputs[id].className = `form-control ${validationState(value !== "")}`;
+  			default:
+  				return "";
+  		}
+  	}
+
+  	const submitState = () => {
+  		const inputsArr = Object.values(formInputs);
+
+  		clearing_submit.disabled = inputsArr.filter((element) => element.classList.contains("is-valid")).length !== 4;
+  	}
+
+  	const validate = (id) => {
+          checkValidation(id, formInputs[id].value);
+  		submitState();
+  	}
+
+  // Canvas scripting
+  	const initializeCanvas = () => {
+  		signature_canvas.width = signature_clear.offsetWidth;
+  		signature_canvas.height = signature_clear.offsetWidth / 16 * 9;
+  	}
+
+  	const clearCanvas = () => {
+  		initializeCanvas();
+  		formInputs.signature.value = "";
+  		validate(formInputs.signature.id);
+  	}
+
+  	const processCanvas = () => {
+  		signature.value = signature_canvas.toDataURL();
+  		validate(formInputs.signature.id);
+  	}
+
+  // Initialize values
+  	initializeCanvas();
+
+  // Event listeners
+  	Object.keys(formInputs).forEach((id) => {
+  		formInputs[id].addEventListener("keyup", () => validate(id));
+  	});
+
+  	clearing_modal.addEventListener("shown.bs.modal", () => clearCanvas());
+
+      signature_clear.addEventListener("click", () => clearCanvas());
+
+      signature_canvas.addEventListener("mouseup", () => processCanvas());
+</script>

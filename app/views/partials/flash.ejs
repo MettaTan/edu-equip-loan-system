@@ -1,0 +1,23 @@
+<% if (success && success.length) { %>
+	<div class="alert alert-success alert-dismissible fade show position-absolute top-0 start-0 w-100" style="z-index: 5;" role="alert">
+		<strong><%= success %> </strong>
+		<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+	</div>
+	<script>
+		setTimeout(() => {
+			bootstrap.Alert.getOrCreateInstance(document.querySelector(".alert")).close();
+		}, 5000)
+	</script>
+<% } %>
+
+<% if (error && error.length) { %>
+	<div class="alert alert-danger alert-dismissible fade show position-absolute top-0 start-0 w-100" style="z-index: 5;" role="alert">
+		<strong><%= error %> </strong>
+		<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+	</div>
+	<script>
+		setTimeout(() => {
+			bootstrap.Alert.getOrCreateInstance(document.querySelector(".alert")).close();
+		}, 5000)
+	</script>
+<% } %>

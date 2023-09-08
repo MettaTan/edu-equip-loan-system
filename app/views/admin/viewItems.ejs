@@ -1,0 +1,470 @@
+<%- include("../partials/DatatablesDependencies") %> <%-
+include("../partials/header") %>
+<style>
+  ::placeholder {
+    text-transform: none;
+  }
+  #itemDescription,
+  #serialNo {
+    text-transform: uppercase;
+  }
+  thead tr,
+  tfoot tr {
+    background-color: #f1f1f1;
+  }
+  th {
+    white-space: nowrap;
+  }
+  td:nth-child(6) {
+    white-space: nowrap;
+  }
+  .selectedTr {
+    background-color: #a9a9a9 !important;
+  }
+  .submitDeleteButton,
+  .submitEditButton,
+  .cancelButton {
+    display: none;
+  }
+  .filter-cyan {
+    filter: brightness(0) saturate(100%) invert(82%) sepia(28%) saturate(7352%)
+      hue-rotate(145deg) brightness(96%) contrast(96%);
+  }
+  .filter-red {
+    filter: brightness(0) saturate(100%) invert(42%) sepia(34%) saturate(5692%)
+      hue-rotate(329deg) brightness(84%) contrast(107%);
+  }
+  .filter-white {
+    filter: brightness(0) invert(1);
+  }
+</style>
+<main class="container">
+  <hr />
+  <div class="row g-3 mb-3">
+    <div class="btn btn-group w-25">
+      <a class="btn btn-outline-danger" type="button" href="/admin"
+        ><strong>Go Back</strong></a
+      >
+    </div>
+    <div class="w-50"></div>
+    <div class="btn btn-group w-25">
+      <button
+        class="btn btn-outline-primary"
+        type="button"
+        data-bs-toggle="modal"
+        data-bs-target="#new-equipment-modal"
+      >
+        <strong>New Type</strong>
+      </button>
+      <button
+        class="btn btn-info"
+        type="button"
+        data-bs-toggle="modal"
+        data-bs-target="#new-item-modal"
+      >
+        <strong>Add Item</strong>
+      </button>
+    </div>
+  </div>
+  <table class="table table-hover" id="item-table">
+    <thead>
+      <tr>
+        <th scope="col">Item Description</th>
+        <th scope="col">Type</th>
+        <th scope="col"></th>
+        <th scope="col">Serial No.</th>
+        <th scope="col">Assigned User</th>
+        <th scope="col"></th>
+        <th scope="col">Status</th>
+        <th scope="col"></th>
+      </tr>
+    </thead>
+    <tfoot>
+      <tr>
+        <th scope="col">Item Description</th>
+        <th scope="col">Type</th>
+        <th scope="col"></th>
+        <th scope="col">Serial No.</th>
+        <th scope="col">Assigned User</th>
+        <th scope="col"></th>
+        <th scope="col">Status</th>
+        <th scope="col"></th>
+      </tr>
+    </tfoot>
+  </table>
+  <div class="modal fade" id="new-item-modal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">New Item Entry</h5>
+          <button
+            class="btn-close"
+            type="button"
+            data-bs-dismiss="modal"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="container">
+            <form
+              class="row g-3"
+              id="new-item-form"
+              method="post"
+              action="/admin/addItem"
+              autocomplete="off"
+            >
+              <div class="form-group col-md-6">
+                <label class="form-label" for="new-item-description"
+                  >Item Description:</label
+                >
+                <input
+                  class="form-control"
+                  id="new-item-description"
+                  name="data[item_description]"
+                  type="text"
+                  placeholder="Item Description"
+                />
+              </div>
+              <div class="form-group col-md-6">
+                <label class="form-label" for="new-equipment-name"
+                  >Equipment Name:</label
+                >
+                <select
+                  class="form-select"
+                  id="new-equipment-name"
+                  name="data[equipment_type]"
+                >
+                  <option selected value="" disabled>
+                    Select an option...
+                  </option>
+                  <% for (const equipment of equipmentsData) { %>
+                  <option value="<%= equipment._id %>">
+                    <%= equipment.equipment_name %>
+                  </option>
+                  <% } %>
+                </select>
+              </div>
+              <div class="form-group col-md-6">
+                <label class="form-label" for="new-serial-no"
+                  >Serial No.:</label
+                >
+                <input
+                  class="form-control"
+                  id="new-serial-no"
+                  name="data[serial_no]"
+                  type="text"
+                  placeholder="Serial No."
+                />
+              </div>
+              <div class="form-group col-md-6">
+                <label class="form-label" for="new-assigned-user"
+                  >Assigned User:</label
+                >
+                <select
+                  class="form-select"
+                  id="new-assigned-user"
+                  name="data[user_assignment]"
+                >
+                  <option selected value="" disabled>
+                    Select an option...
+                  </option>
+                  <option value="Not Assigned">Not Assigned</option>
+                  <% for (const user of usersData) { %>
+                  <option value="<%= user._id %>"><%= user.fullName %></option>
+                  <% } %>
+                </select>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="btn btn-outline-danger me-auto"
+            type="button"
+            data-bs-dismiss="modal"
+          >
+            Close
+          </button>
+          <button
+            class="btn btn-success"
+            id="add-item-entry"
+            type="submit"
+            form="new-item-form"
+            disabled
+          >
+            Add Entry
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="new-equipment-modal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">New Equipment Entry</h5>
+          <button
+            class="btn-close"
+            type="button"
+            data-bs-dismiss="modal"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="container">
+            <form
+              class="row g-3"
+              id="new-equipment-form"
+              method="post"
+              action="/admin/addEquipment"
+              autocomplete="off"
+            >
+              <div class="form-group col-md-12">
+                <label class="form-label" for="new-equipment"
+                  >Equipment Name:</label
+                >
+                <input
+                  class="form-control"
+                  id="new-equipment"
+                  name="data[equipment_name]"
+                  type="text"
+                  placeholder="Equipment Name"
+                />
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="btn btn-outline-danger me-auto"
+            type="button"
+            data-bs-dismiss="modal"
+          >
+            Close
+          </button>
+          <button
+            class="btn btn-success"
+            id="add-equipment-entry"
+            type="submit"
+            form="new-equipment-form"
+            disabled
+          >
+            Add Entry
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<%- include("../partials/footer") %>
+<script>
+  	const equipments = <%- JSON.stringify(equipmentsData) %>,
+  		users = <%- JSON.stringify(usersData) %>;
+
+  	let dataTable;
+
+      $(document).ready(function () {
+          dataTable = $(".table").DataTable({
+              ajax: "getItemData",
+  			columnDefs: [
+  				{
+  					targets: [1, 4],
+  					searchable: false,
+  				},
+  				{
+  					targets: [2, 5],
+  					visible: false,
+  				},
+  				{
+  					targets: [0, 3],
+              		orderDataType: "dom-text",
+  					type: "numeric",
+  				},
+  				{
+  					targets: [1, 4],
+              		orderDataType: "dom-select"
+  				},
+  				{
+  					targets: [7],
+  					orderable: false
+  				},
+  			],
+              columns: [
+                  {
+  					data: "item_description",
+  					render: function (data, type, row, meta) {
+  						return `<input class="form-control form-control-sm" id="item_description" type="text" placeholder="Item Description" value="${data}" disabled>`
+  					}
+  				},
+                  {
+                      data: "equipment_name",
+                      render: function (data, type, row, meta) {
+  						let $select = $(`<select class="form-select form-select-sm" id="equipment_type" disabled></select>`, {});
+  						$.each(equipments, function (key, value) {
+  							let $option = $("<option></option>", {
+  								"text": value.equipment_name,
+  								"value": value._id,
+  							});
+  							if (data === value.equipment_name) $option.attr("selected", "selected");
+  							$select.append($option);
+  						});
+  						return $select.prop("outerHTML");
+                      }
+  				},
+  				{ data: "equipment_name" },
+                  {
+  					data: "serial_no",
+  					render: function (data, type, row, meta) {
+  						return `<input class="form-control form-control-sm" id="serial_no" type="text" placeholder="Serial Number" value="${data}" disabled>`
+  					}
+  				},
+                  {
+                      data: "assigned_userfullName",
+                      render: function (data, type, row, meta) {
+  						let $select = $(`<select class="form-select form-select-sm" id="user_assignment" disabled>
+  							<option selected value="">Not Assigned</option>
+  						</select>`, {});
+  						$.each(users, function (key, value) {
+  							let $option = $("<option></option>", {
+  								"text": value.fullName,
+  								"value": value._id,
+  							});
+  							if (data === value.fullName) $option.attr("selected", "selected");
+  							$select.append($option);
+  						});
+  						return $select.prop("outerHTML");
+                      }
+                  },
+  				{ data: "assigned_userfullName" },
+                  { data: "status" },
+                  {
+  					data: "_id",
+                      render: function (data, type, row, meta) {
+  						return `
+  							<button class="btn btn-outline-primary btn-sm editButton" type="button"><img class="filter-cyan" src="/assets/pencil-square.svg" height="17px"></button>
+                      		<button class="btn btn-outline-primary btn-sm deleteButton" type="button"><img class="filter-red" src="/assets/trash.svg" height="17px"></button>
+  							<button class="btn btn-primary btn-sm submitEditButton" type="button" data-id="${data}"><img class="filter-white" src="/assets/check.svg" height="17px"></button>
+  							<button class="btn btn-primary btn-sm submitDeleteButton" type="button" data-id="${data}"><img class="filter-white" src="/assets/trash.svg" height="17px"></button>
+                      		<button class="btn btn-outline-primary btn-sm cancelButton" type="button"><img class="filter-red" src="/assets/x.svg" height="17px"></button>
+  						`;
+                      }
+  				},
+              ],
+          	order: [
+  				[6, "desc"]
+  			],
+  			orderCellsTop: true,
+              pagingType: "first_last_numbers",
+          });
+      });
+
+  // Variable declarations
+  	const {
+  			item_table,
+  			add_item_entry,
+  			new_equipment, add_equipment_entry
+  		} = Object.fromEntries(
+  			Array.from(document.querySelectorAll("[id]")).map((element) => [element.id.replace(/-/g, "_"), element])
+  		),
+  		formInputs = Object.fromEntries(
+  			Array.from(document.querySelectorAll("#new-item-description, #new-equipment-name, #new-serial-no, #new-assigned-user")).map((element) => [element.id, element])
+  		);
+
+  // Client-side form validation
+  	const validationState = (boolean) => {
+  		return boolean ? "is-valid" : "is-invalid";
+  	}
+
+  	const checkValidation = (id, value) => {
+  		switch (id) {
+  			case "new-equipment":
+  			case "new-item-description":
+  			case "new-serial-no":
+  				return `form-control ${validationState(value !== "")}`;
+  			case "new-equipment-name":
+  			case "new-assigned-user":
+  				return `form-select ${validationState(value !== "")}`;
+  			default:
+  				return "";
+  		}
+  	}
+
+  	const submitState = () => add_item_entry.disabled = !Object.values(formInputs).every((element) => element.classList.contains("is-valid"));
+
+  	const validate = (id) => {
+  		formInputs[id].className = checkValidation(id, formInputs[id].value);
+  		submitState();
+  	}
+
+  	const validateEquipment = () => {
+  		new_equipment.className = checkValidation("new-equipment", new_equipment.value);
+  		add_equipment_entry.disabled = !new_equipment.classList.contains("is-valid");
+  	}
+
+  // Entry editing
+  	const editEntry = (tr) => {
+  		for (const id of ["item_description", "serial_no", "equipment_type", "user_assignment"]) tr.querySelector(`#${id}`).disabled = false;
+  		for (const className of ["submitEditButton", "cancelButton"]) tr.querySelector(`.${className}`).style.display = "inline";
+  		for (const className of ["editButton", "deleteButton"]) tr.querySelector(`.${className}`).style.display = "none";
+  	}
+
+  	const deleteEntry = (tr) => {
+  		for (const className of ["submitDeleteButton", "cancelButton"]) tr.querySelector(`.${className}`).style.display = "inline";
+  		for (const className of ["editButton", "deleteButton"]) tr.querySelector(`.${className}`).style.display = "none";
+  		tr.classList.add("selectedTr");
+  	}
+
+  	const hideButtons = (tr) => {
+  		for (const id of ["item_description", "serial_no", "equipment_type", "user_assignment"]) tr.querySelector(`#${id}`).disabled = true;
+  		for (const className of ["submitEditButton", "submitDeleteButton", "cancelButton"]) tr.querySelector(`.${className}`).style.display = "none";
+  		for (const className of ["editButton", "deleteButton"]) tr.querySelector(`.${className}`).style.display = "inline";
+  		tr.classList.remove("selectedTr");
+  	}
+
+  	const edit = (data) => {
+  		fetch("/admin/editItem", {
+  			method: "POST",
+  			headers: { "Content-Type": "application/json" },
+  			body: JSON.stringify({ data })
+  		});
+  	};
+
+  	const confirmEditEntry = (tr) => {
+  		let data = { _id: tr.querySelector(".submitEditButton").dataset.id };
+  		for (const id of ["item_description", "serial_no", "equipment_type", "user_assignment"]) data[id] = tr.querySelector(`#${id}`).value;
+  		edit(data);
+  		hideButtons(tr);
+  	}
+
+  	const del = (_id) => {
+  		fetch("/admin/deleteItem", {
+  			method: "POST",
+  			headers: { "Content-Type": "application/json" },
+  			body: JSON.stringify({ _id })
+  		});
+  	}
+
+  	const confirmDeleteEntry = (tr) => del(tr.querySelector(".submitDeleteButton").dataset.id);
+
+  	const reloadTable = () => dataTable.ajax.reload(null, false);
+
+  // Event listeners
+      item_table.addEventListener("click", (event) => {
+          const parentButton = event.target.tagName === "IMG" ? event.target.parentNode : event.target;
+
+          const parentTr = parentButton.parentNode.parentNode;
+
+          if (parentButton.classList.contains("editButton")) editEntry(parentTr);
+          else if (parentButton.classList.contains("deleteButton")) deleteEntry(parentTr);
+          else if (parentButton.classList.contains("submitEditButton")) confirmEditEntry(parentTr);
+          else if (parentButton.classList.contains("submitDeleteButton")) {
+  			confirmDeleteEntry(parentTr);
+  			reloadTable();
+  		} else if (parentButton.classList.contains("cancelButton")) {
+  			hideButtons(parentTr);
+  			reloadTable();
+  		}
+      });
+
+  	Object.keys(formInputs).forEach((id) => formInputs[id].addEventListener("input", () => validate(id)));
+
+  	new_equipment.addEventListener("input", () => validateEquipment());
+</script>

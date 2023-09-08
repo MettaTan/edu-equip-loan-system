@@ -1,0 +1,202 @@
+<%- include("../partials/header") %>
+<style>
+  ::placeholder {
+    text-transform: none;
+  }
+
+  #nric,
+  #fullName,
+  #pin {
+    text-transform: uppercase;
+  }
+</style>
+<main class="container w-75 mt-4">
+  <h4><u>New User Creation Page</u></h4>
+  <h5>Please include all relevant information.</h5>
+  <hr />
+  <form id="form" method="post" action="/user/addUser" autocomplete="off">
+    <div class="row g-3" id="particulars-form">
+      <div class="form-group col-md-3">
+        <label class="form-label" for="nric">NRIC</label>
+        <input
+          class="form-control"
+          id="nric"
+          name="data[nric]"
+          type="text"
+          placeholder="Full Unmasked NRIC"
+          maxlength="9"
+        />
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback" id="nric-invalid-feedback"></div>
+      </div>
+      <div class="form-group col-md-6">
+        <label class="form-label" for="fullName">Rank &amp; Name</label>
+        <input
+          class="form-control"
+          id="fullName"
+          name="data[fullName]"
+          type="text"
+          placeholder="Rank &amp; Name"
+        />
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">Please enter your Rank &amp; Name.</div>
+      </div>
+      <div class="form-group col-md-3">
+        <label class="form-label" for="pin">User PIN</label>
+        <input
+          class="form-control"
+          id="pin"
+          name="data[pin]"
+          type="text"
+          placeholder="4 character PIN"
+          maxlength="4"
+        />
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">
+          Please enter a valid 4 character PIN.
+        </div>
+      </div>
+      <div class="col-md-8"></div>
+      <div class="form-group col-md-2">
+        <div class="form-check">
+          <input
+            class="form-check-input"
+            id="admin"
+            name="data[admin]"
+            type="checkbox"
+            value="admin"
+          />
+          <label class="form-check-label" for="admin">Admin User?</label>
+        </div>
+      </div>
+      <div class="form-group col-md-2">
+        <div class="form-check">
+          <input
+            class="form-check-input"
+            id="staff"
+            name="data[staff]"
+            type="checkbox"
+            value="staff"
+          />
+          <label class="form-check-label" for="staff">Staff User?</label>
+        </div>
+      </div>
+      <hr />
+      <div class="col-md-6">
+        <a class="btn btn-danger btn-lg w-100" type="button" href="/admin"
+          >Go Back</a
+        >
+      </div>
+      <div class="col-md-6">
+        <button
+          class="btn btn-success btn-lg w-100"
+          id="submit-button"
+          type="button"
+          disabled
+        >
+          Add User
+        </button>
+      </div>
+    </div>
+  </form>
+</main>
+<%- include("../partials/footer") %>
+<script>
+  // Variable declarations
+  const formInputs = Object.fromEntries(
+    Array.from(document.querySelectorAll("#particulars-form input")).map(
+      (element) => [element.id, element]
+    )
+  );
+
+  const { form, nric_invalid_feedback, submit_button } = Object.fromEntries(
+    Array.from(document.querySelectorAll("[id]")).map((element) => [
+      element.id.replace(/-/g, "_"),
+      element,
+    ])
+  );
+
+  // Client-side form validation
+  const regExPatterns = {
+    nric: /^[STFG]\d{7}[A-Z]$/i,
+    fullName: /^\w+([\w ]+)*$/i,
+    pin: /^\w{4}$/i,
+  };
+
+  const validateValue = (id, value) => regExPatterns[id].test(value);
+
+  const validationState = (boolean) => {
+    return boolean ? "is-valid" : "is-invalid";
+  };
+
+  const checkNric = async (value) => {
+    const res = await fetch("/transaction/checkNric", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nric: value }),
+    });
+
+    return await res.json();
+  };
+
+  const checkValidation = (id, value) => {
+    switch (id) {
+      case "nric":
+        if (validateValue(id, value)) {
+          const promise = checkNric(value);
+
+          promise.then((res) => {
+            if (res) {
+              formInputs.nric.className = `form-control ${validationState(
+                false
+              )}`;
+              nric_invalid_feedback.innerHTML = "User already exists!";
+            } else {
+              formInputs.nric.className = `form-control ${validationState(
+                true
+              )}`;
+            }
+          });
+        } else {
+          formInputs.nric.className = `form-control ${validationState(false)}`;
+          nric_invalid_feedback.innerHTML =
+            "Please enter <strong>Full <u>Unmasked</u></strong> NRIC (e.g. 'S1234567A').";
+        }
+        break;
+      case "fullName":
+      case "pin":
+        formInputs[id].className = `form-control ${validationState(
+          validateValue(id, value)
+        )}`;
+        break;
+      case "admin":
+      case "staff":
+        formInputs[id].className = "form-check-input";
+      default:
+        break;
+    }
+  };
+
+  const submitState = () => {
+    const inputsArr = Object.values(formInputs);
+
+    submit_button.disabled =
+      inputsArr.filter((element) => element.classList.contains("is-valid"))
+        .length !== 3;
+  };
+
+  const validate = (id) => {
+    checkValidation(id, formInputs[id].value);
+    submitState();
+  };
+
+  // Event listeners
+
+  Object.keys(formInputs).forEach((id) => {
+    formInputs[id].addEventListener("keyup", () => validate(id));
+  });
+
+  submit_button.addEventListener("click", () => {
+    form.submit();
+  });
+</script>

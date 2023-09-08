@@ -1,0 +1,153 @@
+<%- include("../partials/DatatablesDependencies") %> <%-
+include("../partials/header") %>
+<style>
+  thead tr,
+  tfoot tr {
+    background-color: #f1f1f1;
+  }
+  th {
+    white-space: nowrap;
+  }
+  td > img {
+    border: 1px solid black;
+  }
+</style>
+<main class="container">
+  <hr />
+  <div class="row g-3 mb-3">
+    <div class="btn btn-group w-100">
+      <a class="btn btn-outline-danger" type="button" href="/admin"
+        ><strong>Go Back</strong></a
+      >
+    </div>
+  </div>
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th scope="col">S/N</th>
+        <th scope="col">Item</th>
+        <th scope="col">Reason for Loan</th>
+        <th scope="col">Borrower</th>
+        <th scope="col">Borrower Signature<br />(Loan)</th>
+        <th scope="col">Loan Verifier</th>
+        <th scope="col">Loan Verifier<br />Signature</th>
+        <th scope="col">Loaned At</th>
+        <th scope="col">Borrower Signature<br />(Return)</th>
+        <th scope="col">Return Verifier</th>
+        <th scope="col">Return Verifier<br />Signature</th>
+        <th scope="col">Returned At</th>
+        <th scope="col">Clearing staff</th>
+        <th scope="col">Clearing staff<br />Signature</th>
+        <th scope="col">Cleared At</th>
+      </tr>
+    </thead>
+    <tfoot>
+      <tr>
+        <th scope="col">S/N</th>
+        <th scope="col">Item</th>
+        <th scope="col">Reason for Loan</th>
+        <th scope="col">Borrower</th>
+        <th scope="col">Borrower Signature<br />(Loan)</th>
+        <th scope="col">Loan Verifier</th>
+        <th scope="col">Loan Verifier<br />Signature</th>
+        <th scope="col">Loaned At</th>
+        <th scope="col">Borrower Signature<br />(Return)</th>
+        <th scope="col">Return Verifier</th>
+        <th scope="col">Return Verifier<br />Signature</th>
+        <th scope="col">Returned At</th>
+        <th scope="col">Clearing staff</th>
+        <th scope="col">Clearing staff<br />Signature</th>
+        <th scope="col">Cleared At</th>
+      </tr>
+    </tfoot>
+  </table>
+</main>
+<%- include("../partials/footer") %>
+<script>
+  $(document).ready(function () {
+    $(".table").DataTable({
+      ajax: "getRecordData",
+      columnDefs: [
+        {
+          targets: [4, 6, 8, 10, 13],
+          orderable: false,
+        },
+      ],
+      columns: [
+        { data: "count" },
+        { data: "item" },
+        { data: "reason" },
+        { data: "borrower" },
+        {
+          data: "loan_signature",
+          render: function (data, type, row, meta) {
+            return `<img src="${data}" width="100px">`;
+          },
+        },
+        { data: "loan_verifier" },
+        {
+          data: "loan_verifier_signature",
+          render: function (data, type, row, meta) {
+            return `<img src="${data}" width="100px">`;
+          },
+        },
+        {
+          data: "loanAt",
+          render: function (data, type, row, meta) {
+            return moment(new Date(data)).format("MMMM Do YYYY, h:mm:ss a");
+          },
+        },
+        {
+          data: "return_signature",
+          render: function (data, type, row, meta) {
+            return data === "-" ? "" : `<img src="${data}" width="100px">`;
+          },
+        },
+        {
+          data: "return_verifier",
+          render: function (data, type, row, meta) {
+            return data === "-" ? "" : data;
+          },
+        },
+        {
+          data: "return_verifier_signature",
+          render: function (data, type, row, meta) {
+            return data === "-" ? "" : `<img src="${data}" width="100px">`;
+          },
+        },
+        {
+          data: "returnAt",
+          render: function (data, type, row, meta) {
+            return data === "-"
+              ? ""
+              : moment(new Date(data)).format("MMMM Do YYYY, h:mm:ss a");
+          },
+        },
+        {
+          data: "clearing_staff",
+          render: function (data, type, row, meta) {
+            return data === "-" ? "" : data;
+          },
+        },
+        {
+          data: "clearing_staff_signature",
+          render: function (data, type, row, meta) {
+            return data === "-" ? "" : `<img src="${data}" width="100px">`;
+          },
+        },
+        {
+          data: "clearAt",
+          render: function (data, type, row, meta) {
+            return data === "-"
+              ? ""
+              : moment(new Date(data)).format("MMMM Do YYYY, h:mm:ss a");
+          },
+        },
+      ],
+      order: [[0, "desc"]],
+      orderCellsTop: true,
+      pagingType: "first_last_numbers",
+      scrollX: true,
+    });
+  });
+</script>

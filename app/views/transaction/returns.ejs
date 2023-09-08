@@ -1,0 +1,329 @@
+<%- include("../partials/header") %>
+<style>
+  ::placeholder {
+    text-transform: none;
+  }
+
+  #nric,
+  #fullName,
+  #pin {
+    text-transform: uppercase;
+  }
+  .filter-white {
+    filter: brightness(0) invert(1);
+  }
+  .filter-red {
+    filter: brightness(0) saturate(100%) invert(42%) sepia(34%) saturate(5692%)
+      hue-rotate(329deg) brightness(84%) contrast(107%);
+  }
+</style>
+<main class="container w-75 mt-4">
+  <form
+    id="form"
+    method="post"
+    action="/transaction/returns"
+    autocomplete="off"
+  >
+    <div class="row g-3" id="particulars-form">
+      <div class="form-group col-md-4">
+        <label class="form-label" for="nric">NRIC</label>
+        <input
+          class="form-control"
+          id="nric"
+          name="data[nric]"
+          type="text"
+          placeholder="Full Unmasked NRIC"
+          maxlength="9"
+        />
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback" id="nric-invalid-feedback"></div>
+      </div>
+      <div class="form-group col-md-4">
+        <label class="form-label" for="fullName">Rank &amp; Name</label>
+        <input
+          class="form-control"
+          id="fullName"
+          type="text"
+          placeholder="Rank &amp; Name"
+          disabled
+        />
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">Please enter your Rank &amp; Name.</div>
+      </div>
+      <div class="form-group col-md-4">
+        <label class="form-label" for="pin">User PIN</label>
+        <input
+          class="form-control"
+          id="pin"
+          type="text"
+          placeholder="4 character PIN"
+          maxlength="4"
+          disabled
+        />
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback" id="pin-invalid-feedback"></div>
+      </div>
+      <div class="col-md-6">
+        <div class="accordion">
+          <div class="accordion-item">
+            <div class="accordion-header">
+              <button class="accordion-button" type="button">
+                Loaned Items
+              </button>
+            </div>
+            <div class="accordion-collapse collapse show my-3">
+              <div class="row g-3" id="loaned-items"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group col-md-6">
+        <label class="form-label" for="signature">Signature</label>
+        <canvas class="border" id="sig-canvas"></canvas>
+        <button
+          class="btn btn-outline-danger btn-sm w-100"
+          id="signature-clear"
+          type="button"
+        >
+          Clear Signature
+        </button>
+        <input id="signature" name="data[signature]" type="hidden" />
+        <div class="invalid-feedback">Please sign.</div>
+      </div>
+      <hr />
+      <div class="col-md-6">
+        <a class="btn btn-danger btn-lg w-100" type="button" href="/"
+          >Go Back</a
+        >
+      </div>
+      <div class="col-md-6">
+        <button
+          class="btn btn-outline-success btn-lg w-100"
+          id="submit-button"
+          type="submit"
+          disabled
+        >
+          To Verify
+        </button>
+      </div>
+    </div>
+  </form>
+</main>
+<%- include("../partials/footer") %>
+<script src="/javascripts/canvas.js"></script>
+<script>
+  // Variable declarations
+  const formInputs = Object.fromEntries(
+    Array.from(document.querySelectorAll("#particulars-form input")).map(
+      (element) => [element.id, element]
+    )
+  );
+
+  const {
+      form,
+      nric_invalid_feedback,
+      pin_invalid_feedback,
+      loaned_items,
+      signature_clear,
+      submit_button,
+    } = Object.fromEntries(
+      Array.from(document.querySelectorAll("[id]")).map((element) => [
+        element.id.replace(/-/g, "_"),
+        element,
+      ])
+    ),
+    signature_canvas = document.getElementById("sig-canvas");
+
+  // Client-side form validation
+  const regExPatterns = {
+    nric: /^[STFG]\d{7}[A-Z]$/i,
+    fullName: /^\w+([\w ]+)*$/i,
+    pin: /^\w{4}$/i,
+  };
+
+  const validateValue = (id, value) => regExPatterns[id].test(value);
+
+  const validationState = (boolean) => {
+    return boolean ? "is-valid" : "is-invalid";
+  };
+
+  const checkNric = async (value) => {
+    const res = await fetch("/transaction/checkReturnNric", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nric: value }),
+    });
+
+    return await res.json();
+  };
+
+  const checkPin = async (value) => {
+    const res = await fetch("/transaction/checkPin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        nric: formInputs.nric.value,
+        pin: value,
+      }),
+    });
+
+    return await res.json();
+  };
+
+  const getLoanedItems = async () => {
+    const res = await fetch("/transaction/getLoanedItems", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nric: formInputs.nric.value }),
+    });
+
+    return await res.json();
+  };
+
+  const removeRecords = () => (loaned_items.innerHTML = "");
+
+  const checkValidation = (id, value) => {
+    switch (id) {
+      case "nric":
+        if (validateValue(id, value)) {
+          const promise = checkNric(value);
+
+          promise.then((res) => {
+            formInputs.pin.disabled = !res;
+            if (res) {
+              formInputs.fullName.value = res.fullName;
+              validate(formInputs.fullName.id);
+              formInputs.nric.className = `form-control ${validationState(
+                true
+              )}`;
+              validate(formInputs.pin.id);
+            } else {
+              formInputs.fullName.value = "";
+              validate(formInputs.fullName.id);
+              formInputs.nric.className = `form-control ${validationState(
+                false
+              )}`;
+              nric_invalid_feedback.innerHTML = "User does not exist!";
+              removeRecords();
+              submitState();
+            }
+          });
+        } else {
+          formInputs.pin.disabled = true;
+          formInputs.fullName.value = "";
+          validate(formInputs.fullName.id);
+          formInputs.nric.className = `form-control ${validationState(false)}`;
+          nric_invalid_feedback.innerHTML =
+            "Please enter <strong>Full <u>Unmasked</u></strong> NRIC (e.g. 'S1234567A').";
+          removeRecords();
+          submitState();
+        }
+        break;
+      case "fullName":
+        formInputs[id].className = `form-control ${validationState(
+          validateValue(id, value)
+        )}`;
+      case "pin":
+        if (validateValue(id, value)) {
+          const promise = checkPin(value);
+
+          promise.then((res) => {
+            formInputs.pin.className = `form-control ${validationState(res)}`;
+            if (!res) {
+              pin_invalid_feedback.textContent =
+                "Invalid PIN! Please try again...";
+              removeRecords();
+              submitState();
+            } else {
+              const promise2 = getLoanedItems();
+
+              promise2.then((loanedItems) => {
+                if (loanedItems) {
+                  let checkList = "",
+                    i = 0;
+                  for (const item of loanedItems) {
+                    checkList += `
+											<div class="form-group col-md-10 offset-md-1">
+												<div class="form-check">
+													<input class="form-check-input" id="item${i}" name="data[items][]" type="checkbox" value="${item._id}">
+													<label class="form-check-label" for="item${i}">${item.item_description} (${item.equipment_type.equipment_name})</label>
+												</div>
+											</div>
+										`;
+                    i++;
+                  }
+                  loaned_items.innerHTML = checkList;
+                }
+                submitState();
+              });
+            }
+          });
+        } else {
+          formInputs.pin.className = `form-control ${validationState(false)}`;
+          pin_invalid_feedback.textContent =
+            "Please enter a valid 4 character PIN.";
+          removeRecords();
+          submitState();
+        }
+        break;
+      case "signature":
+        formInputs[id].className = `form-control ${validationState(
+          value !== ""
+        )}`;
+      default:
+        return "";
+    }
+  };
+
+  const submitState = () => {
+    const inputsArr = Object.values(formInputs);
+
+    submit_button.disabled =
+      inputsArr.filter((element) => element.classList.contains("is-valid"))
+        .length !== 4 ||
+      !Array.from(
+        document.querySelectorAll("input[name='data[items][]']")
+      ).some((element) => element.checked);
+  };
+
+  const validate = (id) => {
+    checkValidation(id, formInputs[id].value);
+    submitState();
+  };
+
+  // Canvas scripting
+  const initializeCanvas = () => {
+    signature_canvas.width = signature_clear.offsetWidth;
+    signature_canvas.height = (signature_clear.offsetWidth / 16) * 9;
+  };
+
+  const clearCanvas = () => {
+    initializeCanvas();
+    formInputs.signature.value = "";
+    validate(formInputs.signature.id);
+  };
+
+  const processCanvas = () => {
+    signature.value = signature_canvas.toDataURL();
+    validate(formInputs.signature.id);
+  };
+
+  // Initialize values
+  initializeCanvas();
+
+  // Event listeners
+
+  Object.keys(formInputs).forEach((id) => {
+    formInputs[id].addEventListener("keyup", () => validate(id));
+  });
+
+  loaned_items.addEventListener("click", (event) => {
+    const check = event.target;
+
+    if (check.className === "form-check-input") submitState();
+  });
+
+  signature_clear.addEventListener("click", () => clearCanvas());
+
+  signature_canvas.addEventListener("mouseup", () => processCanvas());
+</script>
