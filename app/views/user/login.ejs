@@ -8,8 +8,65 @@
   #pin {
     text-transform: uppercase;
   }
+
+  .wave {
+  position: absolute;
+  background: url("/assets/wave.png");
+  bottom: 0;
+  left: 0;
+  background-size: 1000px 100px;
+  width: 100%;
+  height: 100px;
+}
+
+.wave.wave1 {
+  animation: animate 30s linear infinite;
+  z-index: 1000;
+  opacity: 1;
+  animation-delay: 0s;
+  bottom: 0;
+}
+.wave.wave2 {
+  animation: animate2 15s linear infinite;
+  z-index: 999;
+  opacity: 0.5;
+  animation-delay: -5s;
+  bottom: 10px;
+}
+.wave.wave3 {
+  animation: animate 30s linear infinite;
+  z-index: 998;
+  opacity: 0.2;
+  animation-delay: -2s;
+  bottom: 15px;
+}
+.wave.wave4 {
+  animation: animate2 5s linear infinite;
+  z-index: 997;
+  opacity: 0.7;
+  animation-delay: -5s;
+  bottom: 20px;
+}
+
+@keyframes animate {
+  0% {
+    background-position-x: 0;
+  }
+  100% {
+    background-position: 1000px;
+  }
+}
+@keyframes animate2 {
+  0% {
+    background-position-x: 0;
+  }
+  100% {
+    background-position: -1000px;
+  }
+}
 </style>
 <main class="container w-75 mt-4">
+  <div class="card p-5 bg-light">
   <hr />
   <form id="form" method="post" action="/user" autocomplete="off">
     <div class="row g-3" id="particulars-form">
@@ -20,7 +77,7 @@
           id="nric"
           name="data[nric]"
           type="text"
-          placeholder="Full Unmasked NRIC"
+          placeholder="Full Unmasked NRIC (enter T0123456J)"
           maxlength="9"
         />
         <div class="valid-feedback">Looks good!</div>
@@ -36,7 +93,7 @@
           id="pin"
           name="data[pin]"
           type="text"
-          placeholder="4 character PIN"
+          placeholder="4 character PIN (enter 0000)"
           maxlength="4"
         />
         <div class="valid-feedback">Looks good!</div>
@@ -52,7 +109,7 @@
       </div>
       <div class="col-md-6">
         <button
-          class="btn btn-success btn-lg w-100"
+          class="btn btn-outline-success btn-lg w-100"
           id="submit-button"
           type="button"
           disabled
@@ -62,8 +119,14 @@
       </div>
     </div>
   </form>
+</div>
+
+<div class="wave wave1"></div>
+<div class="wave wave2"></div>
+<div class="wave wave3"></div>
+<div class="wave wave4"></div>
 </main>
-<%- include("../partials/footer") %>
+
 <script>
   // Variable declarations
   const formInputs = Object.fromEntries(

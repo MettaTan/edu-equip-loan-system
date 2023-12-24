@@ -26,6 +26,7 @@ include("../partials/header") %>
   }
 </style>
 <main class="container">
+  <div class="card p-5 bg-light">
   <hr />
   <div class="row g-3 mb-3">
     <div class="btn btn-group w-25">
@@ -288,8 +289,9 @@ include("../partials/header") %>
       </div>
     </div>
   </div>
+</div>
 </main>
-<%- include("../partials/footer") %>
+
 <script src="/javascripts/canvas.js"></script>
 <script>
   	const expressData = <%- JSON.stringify(unclearedItems) %>

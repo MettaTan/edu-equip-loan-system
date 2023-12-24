@@ -1,22 +1,18 @@
 const router = require("express").Router(),
-    signup = require("./signup.controller"),
-    login = require("./login.controller"),
-    logout = require("./logout.controller");
+  signup = require("./signup.controller"),
+  login = require("./login.controller"),
+  logout = require("./logout.controller");
 
-const catchAsync = require("../../utils/errors/catchAsync");
-
-router
-    .route("/addUser")
-    .get(signup.renderSignUp)
-    .post(catchAsync(signup.processSignUp));
+const checkLogin = require("../../utils/middlewares/checkLogin"),
+  catchAsync = require("../../utils/errors/catchAsync");
 
 router
-    .route("/")
-    .get(login.renderLogin)
-    .post(catchAsync(login.processLogin));
+  .route("/addUser")
+  .get(checkLogin, catchAsync(signup.renderSignUp))
+  .post(catchAsync(signup.processSignUp));
 
-router
-    .route("/logout")
-    .post(catchAsync(logout.processLogout));
+router.route("/").get(login.renderLogin).post(catchAsync(login.processLogin));
+
+router.route("/logout").post(catchAsync(logout.processLogout));
 
 module.exports = router;

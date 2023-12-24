@@ -18,6 +18,7 @@
   }
 </style>
 <main class="container w-75 mt-4">
+  <div class="card p-5 bg-light">
   <form id="form" method="post" action="/transaction/verify" autocomplete="off">
     <div class="row g-3" id="particulars-form">
       <div class="form-group col-md-4">
@@ -93,7 +94,7 @@
       </div>
       <div class="form-group col-md-6">
         <label class="form-label" for="signature">Signature</label>
-        <canvas class="border" id="sig-canvas"></canvas>
+        <canvas class="border bg-white" id="sig-canvas"></canvas>
         <button
           class="btn btn-outline-danger btn-sm w-100"
           id="signature-clear"
@@ -125,8 +126,9 @@
       </div>
     </div>
   </form>
+</div>
 </main>
-<%- include("../partials/footer") %>
+
 <script src="/javascripts/canvas.js"></script>
 <script>
   // Variable declarations

@@ -1,6 +1,6 @@
 module.exports = [
   {
-    nric: "T0290445J",
+    nric: "T0290445K",
     fullName: "METTA TAN",
     pin: "1837",
     admin: "admin",
@@ -32,6 +32,13 @@ module.exports = [
     fullName: "JESSICA HO",
     pin: "9999",
     admin: "admin",
+    staff: "",
+  },
+  {
+    nric: "T0000000Z",
+    fullName: "JOHN DOE",
+    pin: "1234",
+    admin: "",
     staff: "",
   },
 ];

@@ -39,6 +39,7 @@ include("../partials/header") %>
   }
 </style>
 <main class="container">
+  <div class="card p-5 bg-light">
   <hr />
   <div class="row g-3 mb-3">
     <div class="btn btn-group w-25">
@@ -48,7 +49,7 @@ include("../partials/header") %>
     </div>
     <div class="w-50"></div>
     <div class="btn btn-group w-25">
-      <a class="btn btn-info" type="button" href="/user/adduser"
+      <a class="btn btn-info text-light" type="button" href="/user/adduser"
         ><strong>Add User</strong></a
       >
     </div>
@@ -75,8 +76,9 @@ include("../partials/header") %>
       </tr>
     </tfoot>
   </table>
+</div>
 </main>
-<%- include("../partials/footer") %>
+
 <script>
   let dataTable;
 
